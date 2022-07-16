@@ -89,7 +89,7 @@ services:
     restart: unless-stopped
 
   cloud-app:
-    image: nextcloud:addons
+    image: nextcloud:latest
     container_name: nextcloud-app
     networks:
       nextcloud_network:
@@ -111,7 +111,6 @@ services:
       - NEXTCLOUD_ADMIN_PASSWORD=nextcloud
       - NEXTCLOUD_TRUSTED_DOMAINS=cloud.tdavis.dev
     restart: unless-stopped
-
   repo-app:
     image: gitea/gitea:latest
     container_name: gitea-app
@@ -144,5 +143,14 @@ services:
       - komga:/config
       - /mnt:/mnt:ro
       - /etc/localtime:/etc/localtime:ro
+  minecraft:
+    image: itzg/minecraft-server
+    container_name: minecraft
+    volumes:
+      - ./minecraft:/data
+    ports:
+      - 25564:25565
+    environment:
+      - EULA=TRUE
 
 
