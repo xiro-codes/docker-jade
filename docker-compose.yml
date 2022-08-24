@@ -6,6 +6,7 @@ volumes:
   komga:
   nextcloud-db:
   gitea-db:
+  bitwarden:
 
 networks:
   nextcloud_network:
@@ -26,12 +27,19 @@ networks:
       config:
         - subnet: 172.255.80.0/20
           gateway: 172.255.80.1
-  mail_network:
+  monitor_network:
     driver: bridge
     ipam:
       config:
         - subnet: 172.0.80.0/20
           gateway: 172.0.80.1
+  bitwarden_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.1.60.0/20
+          gateway: 172.1.60.1
+
 
 services:
   sever:
@@ -45,6 +53,11 @@ services:
           ipv4_address: 172.168.80.2
       komga_network:
           ipv4_address: 172.255.80.2
+      bitwarden_network:
+          ipv4_address: 172.1.60.2
+      monitor_network:
+        ipv4_address:  172.0.80.2
+
     environment:
       - CERTBOT_EMAIL=travisdavismedia@gmail.com
     ports:
@@ -143,14 +156,31 @@ services:
       - komga:/config
       - /mnt:/mnt:ro
       - /etc/localtime:/etc/localtime:ro
-  minecraft:
-    image: itzg/minecraft-server
-    container_name: minecraft
+  monitor_app:
+    image: nicolargo/glances:latest
+    container_name: monitor-app
+    pid: host
+    networks:
+      monitor_network:
+        ipv4_address: 172.0.80.3
+    depends_on:
+      - nginx
     volumes:
-      - ./minecraft:/data
-    ports:
-      - 25564:25565
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
-      - EULA=TRUE
-
-
+      - GLANCES_OPT=-w
+  bitwarden_app:
+    image: vaultwarden/server:latest
+    container_name: bitwarden-app
+    networks:
+      bitwarden_network:
+        ipv4_address: 172.1.60.3
+    depends_on:
+      - nginx
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - bitwarden:/data
+    environment:
+      WEBSOCKET_ENABLED: 'true'
+      SIGNUPS_ALLOWED: 'true'
