@@ -59,7 +59,7 @@ services:
         ipv4_address:  172.0.80.2
 
     environment:
-      - CERTBOT_EMAIL=travisdavismedia@gmail.com
+      - CERTBOT_EMAIL=certbot@tdavis.dev
     ports:
       - 80:80
       - 443:443
