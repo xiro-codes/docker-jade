@@ -40,9 +40,8 @@ networks:
         - subnet: 172.1.60.0/20
           gateway: 172.1.60.1
 
-
 services:
-  sever:
+  server:
     container_name: nginx
     image: jonasal/nginx-certbot:latest
     restart: unless-stopped
@@ -57,15 +56,14 @@ services:
           ipv4_address: 172.1.60.2
       monitor_network:
         ipv4_address:  172.0.80.2
-
     environment:
       - CERTBOT_EMAIL=certbot@tdavis.dev
     ports:
       - 80:80
       - 443:443
     volumes:
-      - ./nginx/certs:/etc/letsencrypt:rw
-      - ./nginx/conf.d:/etc/nginx/user_conf.d:rw
+      - /mnt/Media/nginx/certs:/etc/letsencrypt:rw
+      - /mnt/Media/nginx/conf.d:/etc/nginx/user_conf.d:rw
   cloud-db:
     image: mariadb
     container_name: nextcloud-db
@@ -74,8 +72,7 @@ services:
       nextcloud_network:
         ipv4_address: 192.168.80.4
     volumes:
-      - nextcloud-db:/var/lib/mysql
-      - ./backup:/mnt:ro
+      - /mnt/Media/nextcloud-db:/var/lib/mysql
       - /etc/localtime:/etc/localtime:ro
     environment:
       - MYSQL_ROOT_PASSWORD=mysql
@@ -83,7 +80,6 @@ services:
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
     restart: unless-stopped
-
   repo-db:
     image: mariadb
     container_name: gitea-db
@@ -92,7 +88,7 @@ services:
       gitea_network:
         ipv4_address: 172.168.80.4
     volumes:
-      - gitea-db:/var/lib/mysql
+      - /mnt/Media/gitea-db:/var/lib/mysql
       - /etc/localtime:/etc/localtime:ro
     environment:
       - MYSQL_ROOT_PASSWORD=mysql
@@ -100,7 +96,6 @@ services:
       - MYSQL_DATABASE=gitea
       - MYSQL_USER=gitea
     restart: unless-stopped
-
   cloud-app:
     image: nextcloud:latest
     container_name: nextcloud-app
@@ -113,13 +108,10 @@ services:
       - server
       - cloud-db
     volumes:
-      - nextcloud:/var/www/html
+      - /mnt/Media/nextcloud:/var/www/html
       - /etc/localtime:/etc/localtime:ro
-      - ./backup:/mnt:ro
     environment:
       - VIRTUAL_HOST=cloud.tdavis.dev
-      - LETSENCRYPT_HOST=cloud.tdavis.dev
-      - LETSENCRYPT_EMAIL=travisdavismedia@gmail.com
       - NEXTCLOUD_ADMIN_USER=nextcloud
       - NEXTCLOUD_ADMIN_PASSWORD=nextcloud
       - NEXTCLOUD_TRUSTED_DOMAINS=cloud.tdavis.dev
@@ -134,7 +126,7 @@ services:
       - nginx
       - repo-db
     volumes:
-      - gitea:/data
+      - /mnt/Media/gitea:/data
       - /etc/localtime:/etc/localtime:ro
     environment:
       - USER_UID=1002
@@ -153,7 +145,7 @@ services:
     depends_on:
       - nginx
     volumes:
-      - komga:/config
+      - /mnt/Media/komga:/config
       - /mnt:/mnt:ro
       - /etc/localtime:/etc/localtime:ro
   monitor_app:
@@ -180,7 +172,7 @@ services:
       - nginx
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - bitwarden:/data
+      - /mnt/Media/bitwarden:/data
     environment:
       WEBSOCKET_ENABLED: 'true'
       SIGNUPS_ALLOWED: 'true'
