@@ -136,7 +136,7 @@ services:
       - nginx
     volumes:
       - /mnt/Media/komga:/config
-      - /mnt:/mnt:ro
+      - /mnt/Media/content:/content:ro
       - /etc/localtime:/etc/localtime:ro
   monitor_app:
     image: nicolargo/glances:latest
