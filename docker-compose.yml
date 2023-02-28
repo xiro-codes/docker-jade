@@ -1,13 +1,4 @@
 version: '3'
-
-volumes:
-  nextcloud:
-  gitea:
-  komga:
-  nextcloud-db:
-  gitea-db:
-  bitwarden:
-
 networks:
   nextcloud_network:
     driver: bridge
@@ -39,7 +30,6 @@ networks:
       config:
         - subnet: 172.1.60.0/20
           gateway: 172.1.60.1
-
 services:
   server:
     container_name: nginx
@@ -175,4 +165,6 @@ services:
       - /mnt/Media/bitwarden:/data
     environment:
       WEBSOCKET_ENABLED: 'true'
-      SIGNUPS_ALLOWED: 'true'
+      SIGNUPS_ALLOWED: false
+      SIGNUPS_DOMAIN_WHITELIST: 'tdavis.dev'
+      ADMIN_TOKEN: 'UoR5vX#WTZoV8xz^sCtHoVMvw%qtASf64Pwi8JfDU5'
